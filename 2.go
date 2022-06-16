@@ -33,7 +33,7 @@ func main() {
 	//============================= Channel ===========================
 	fmt.Println("Channel")
 
-	//синхронизируем горутины с помощью канала ch
+	//синхронизируем горутины с помощью буферизированного канала ch
 	ch := make(chan int, len(array))
 
 	//перебираем элементы массива и вычисляем квадрат числа
@@ -54,16 +54,19 @@ func main() {
 
 func squadWG(numb int, wg *sync.WaitGroup) {
 	sq := numb * numb
-	fmt.Printf("Квадрат числа wg: %d, равен: %d\n", numb, sq)
+	//выводим результат в stdout
+	fmt.Printf("\"WG\" Квадрат числа wg: %d, равен: %d\n", numb, sq)
 
 	//Done сигнализирует, что элемент группы завершил свое выполнение
 	wg.Done()
 }
 
-func squadChan(numb int, ch chan int, i int) {
+// в параметрах функции указываем канал на запись, чтобы при беглом просмотре было понятно,
+//что данная функция делает с каналом
+func squadChan(numb int, ch chan <- int, i int) {
 	sq := numb * numb
 	//выводим результат в stdout
-	fmt.Printf("Квадрат числа ch: %d, равен: %d\n", numb, sq)
+	fmt.Printf("\"Ch\" Квадрат числа : %d, равен: %d\n", numb, sq)
 
 	// пишем данные в канал
 	ch <- i
