@@ -16,11 +16,12 @@ func main() {
 	//создаю тикер, чтобы каждую секунду отправлять данные в канал
 	ticker := time.NewTicker(time.Second)
 
-	//использую метод WithTimeout, чтобы  функция cancel() применилась самостоятельно
-	ctx, _ := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
-
-	//в функции читаю с канала и передаю контекст
-	go read(ctx, ch)
+	//------------------------------------------------------------------------//
+	//===========останавливаю программу с помощью контекста============
+	go readCtx(ch)
+	//===========останавливаю программу с помощью таймера==============
+	//go readTimer(ch)
+	//------------------------------------------------------------------------//
 
 	//последовательно пишем в канал
 	for {
@@ -31,7 +32,10 @@ func main() {
 	}
 }
 
-func read(ctx context.Context, ch <-chan int) {
+func readCtx(ch <-chan int) {
+	//использую метод WithTimeout, чтобы  функция cancel() применилась самостоятельно
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
+
 	for {
 		select {
 		case x := <-ch: //читаю из канала
@@ -39,6 +43,21 @@ func read(ctx context.Context, ch <-chan int) {
 		case <-ctx.Done(): //жду сигнал
 			fmt.Println(ctx.Err()) //вывожу ошибку объясняющую, почему завершилась программа
 			os.Exit(0)             //завершаю программу
+		}
+	}
+}
+
+func readTimer(ch <-chan int) {
+	//инициализирую таймер на 5 сек.
+	timer := time.NewTimer(5 * time.Second)
+
+	for {
+		select {
+		case x := <-ch: //читаю из канала
+			fmt.Println(x)
+		case <-timer.C: // у таймера есть канал в которых приходит сигнал когда время вышло
+			fmt.Println("Время вышло!") //вывожу ошибку объясняющую, почему завершилась программа
+			os.Exit(0)                  //завершаю программу
 		}
 	}
 }
