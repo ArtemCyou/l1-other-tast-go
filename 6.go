@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"runtime"
 
 	_ "runtime"
 	"sync"
@@ -13,8 +14,8 @@ import (
 
 func main() {
 	//=============Остановка горутины=================
-	//contextStop()
-	//channelStop()
+	contextStop()
+	channelStop()
 	timerStop()
 	//=============Блокировка горутины=================
 	//mutexBlock()
@@ -42,7 +43,10 @@ func channelStop() {
 		close(stop)
 	}()
 
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	time.Sleep(3 * time.Second) //даю горутинам время на отработку
+
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	fmt.Println("Канал: Горутина остановлена")
 	fmt.Println("Выход программы")
 }
@@ -65,8 +69,9 @@ func contextStop() {
 			}
 		}
 	}()
-
+fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	<-goDead //ожидаем сигнал об остановке горутины
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	fmt.Println("Выход программы")
 }
 
@@ -87,8 +92,9 @@ func timerStop() {
 			}
 		}
 	}()
-
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	<-timeDeath //ожидаем сигнал об остановке горутины
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	fmt.Println("Выход программы")
 }
 
@@ -103,11 +109,13 @@ func waitGroupBlock() {
 		}
 	}()
 
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	time.Sleep(3 * time.Second) //ждем 3 секунды
 
 	wg.Add(1) //инкрементируем счетчик WaitGroup
 	fmt.Println("WaitGroup: Горутина заблокирована")
 
+	fmt.Println("Активных горутин: ", runtime.NumGoroutine())
 	time.Sleep(time.Second)
 	fmt.Println("Выход приложения")
 
